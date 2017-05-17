@@ -25,72 +25,8 @@
 #include "psplash-poky-img.h"
 #include "psplash-bar-img.h"
 #include "psplash-draw.h"
-
-void psplash_exit(int UNUSED(signum))
-{
-  DBG("mark");
-  psplash_console_reset();
-}
-
-static int main_fbdev(int argc, char** argv)
-{
-  int        i = 0, angle = 0, fbdev_id = 0, ret = 0;
-  PSplashFB *fb;
-  bool       disable_console_switch = FALSE;
-
-  signal(SIGHUP, psplash_exit);
-  signal(SIGINT, psplash_exit);
-  signal(SIGQUIT, psplash_exit);
-
-  while (++i < argc) {
-    if (!strcmp(argv[i],"-n") || !strcmp(argv[i],"--no-console-switch"))
-      {
-        disable_console_switch = TRUE;
-        continue;
-      }
-
-    if (!strcmp(argv[i],"-a") || !strcmp(argv[i],"--angle"))
-      {
-        if (++i >= argc) goto fail;
-        angle = atoi(argv[i]);
-        continue;
-      }
-
-    if (!strcmp(argv[i],"-f") || !strcmp(argv[i],"--fbdev"))
-      {
-        if (++i >= argc) goto fail;
-        fbdev_id = atoi(argv[i]);
-        continue;
-      }
-
-    fail:
-      fprintf(stderr,
-              "Usage: %s [-n|--no-console-switch][-a|--angle <0|90|180|270>][-f|--fbdev <0..9>]\n",
-              argv[0]);
-      exit(-1);
-  }
-
-  if (!disable_console_switch)
-    psplash_console_switch ();
-
-  if ((fb = psplash_fb_new(angle,fbdev_id)) == NULL)
-    {
-	  ret = -1;
-	  goto fb_fail;
-    }
-
-  psplash_main (&fb->scanout);
-
-  psplash_fb_destroy (fb);
-
- fb_fail:
-
-  if (!disable_console_switch)
-    psplash_console_reset ();
-
-  return ret;
-}
-
+#include "psplash-fbdev.h"
+#include "psplash-drm.h"
 
 int main(int argc, char** argv)
 {
@@ -108,7 +44,15 @@ int main(int argc, char** argv)
     }
   }
 
+#if defined(PSPLASH_FBDEV)
   ret = main_fbdev(argc, argv);
+#else
+#if defined(PSPLASH_DRM)
+  ret = main_drm(argc, argv);
+#else
+  ret = 1;
+#endif
+#endif
 
   unlink(PSPLASH_FIFO);
   return ret;

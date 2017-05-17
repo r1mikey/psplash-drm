@@ -8,7 +8,10 @@ psplash_SOURCES = psplash.c psplash.h psplash-fb.c psplash-fb.h \
 		  psplash-poky-img.h psplash-bar-img.h radeon-font.h \
 		  psplash-scanout.c psplash-scanout.h \
 		  psplash-draw.c psplash-draw.h psplash-font.h \
-		  psplash-main.c psplash-main.h
+		  psplash-main.c psplash-main.h \
+		  psplash-fbdev.c psplash-fbdev.h \
+		  psplash-kms.c psplash-kms.h \
+		  psplash-drm.c psplash-drm.h
 
 psplash_write_SOURCES = psplash-write.c psplash.h
 
