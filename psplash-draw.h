@@ -15,29 +15,14 @@
  *
  */
 
-#ifndef _HAVE_PSPLASH_FB_H
-#define _HAVE_PSPLASH_FB_H
+#ifndef _HAVE_PSPLASH_DRAW_H
+#define _HAVE_PSPLASH_DRAW_H
 
-#include "psplash-scanout.h"
+typedef struct PSplashFB PSplashFB;
+typedef struct PSplashScanout PSplashScanout;
 
-typedef struct PSplashFB
-{
-  PSplashScanout scanout;
-  int            fd;
-  struct termios save_termios;
-  int            type;
-  int            visual;
-  char		*base;
-
-  int            fbdev_id;
-  int            real_width, real_height;
-}
-PSplashFB;
-
-void
-psplash_fb_destroy (PSplashFB *fb);
-
-PSplashFB*
-psplash_fb_new (int angle, int fbdev_id);
+extern void psplash_draw_initial(PSplashScanout *so);
+extern void psplash_draw_msg(PSplashScanout *so, const char *msg);
+extern void psplash_draw_progress(PSplashScanout *so, int value);
 
 #endif

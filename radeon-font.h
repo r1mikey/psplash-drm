@@ -1,5 +1,7 @@
 #include "psplash.h"
 
+#include <stdint.h>
+
 /* Font generated from 'radeon' bdf font */
 
 /* Offsets into index. */
@@ -647,7 +649,7 @@ static int _radon_index[570] = {
 };
 
 /* Font character content data. */
-static u_int32_t _radon_content[] = {
+static uint32_t _radon_content[] = {
 
 /* 0: character   (0x20), width 8 */
 /* +--------+

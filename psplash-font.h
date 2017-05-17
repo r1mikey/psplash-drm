@@ -15,29 +15,20 @@
  *
  */
 
-#ifndef _HAVE_PSPLASH_FB_H
-#define _HAVE_PSPLASH_FB_H
+#ifndef _HAVE_PSPLASH_FONT_H
+#define _HAVE_PSPLASH_FONT_H
 
-#include "psplash-scanout.h"
+#include <stdint.h>
 
-typedef struct PSplashFB
+typedef struct PSplashFont
 {
-  PSplashScanout scanout;
-  int            fd;
-  struct termios save_termios;
-  int            type;
-  int            visual;
-  char		*base;
-
-  int            fbdev_id;
-  int            real_width, real_height;
+    char *name;				/* Font name. */
+    int   height;			/* Height in pixels. */
+    int   index_mask;			/* ((1 << N) - 1). */
+    int  *offset;			/* (1 << N) offsets into index. */
+    int  *index;
+    uint32_t *content;
 }
-PSplashFB;
-
-void
-psplash_fb_destroy (PSplashFB *fb);
-
-PSplashFB*
-psplash_fb_new (int angle, int fbdev_id);
+PSplashFont;
 
 #endif

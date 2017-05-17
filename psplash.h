@@ -1,5 +1,5 @@
-/* 
- *  pslash - a lightweight framebuffer splashscreen for embedded devices. 
+/*
+ *  pslash - a lightweight framebuffer splashscreen for embedded devices.
  *
  *  Copyright (c) 2006 Matthew Allum <mallum@o-hand.com>
  *
@@ -60,7 +60,7 @@ typedef int            bool;
 #define CLAMP(x, low, high) \
    (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG
 #define DBG(x, a...) \
@@ -74,18 +74,6 @@ typedef int            bool;
 #else
 #  define UNUSED(x) UNUSED_ ## x
 #endif
-
-typedef struct PSplashFont
-{
-    char *name;				/* Font name. */
-    int   height;			/* Height in pixels. */
-    int   index_mask;			/* ((1 << N) - 1). */
-    int  *offset;			/* (1 << N) offsets into index. */
-    int  *index;
-    u_int32_t *content;
-}
-PSplashFont;
-
 
 #include "psplash-fb.h"
 #include "psplash-console.h"
