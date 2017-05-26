@@ -453,14 +453,38 @@ static const struct drm_connector_map_t drm_connector_map[] = {
 static const size_t drm_connector_map_size =
   sizeof(drm_connector_map) / sizeof(drm_connector_map[0]);
 
-static int drm_connector_name_to_id(const char * name, uint32_t * id)
+static int drm_connector_spec_to_id(
+    const char * name, uint32_t * id, uint32_t * instance)
 {
   size_t i;
+  size_t n;
+  unsigned long ulval;
+  const char * instance_str;
+  char * ep;
 
   for (i = 0; i < drm_connector_map_size; ++i) {
-    if (strcmp(name, drm_connector_map[i].name) == 0) {
+    n = strlen(drm_connector_map[i].name);
+
+    if (strncmp(name, drm_connector_map[i].name, n) == 0) {
+      if (strlen(name) < n + 2)
+        continue;
+      if (name[n] != '-')
+        continue;
       if (id)
         *id = drm_connector_map[i].id;
+      errno = 0;
+      instance_str = name + n + 1;
+      ulval = strtoul(instance_str, &ep, 0);
+      if (instance_str[0] == '\0' || *ep != '\0')
+        break;
+      if (errno == ERANGE && ulval == ULONG_MAX)
+        break;
+      if (ulval > UINT32_MAX) {
+        errno = ERANGE;
+        break;
+      }
+      if (instance)
+        *instance = (uint32_t)ulval;
       return 0;
     }
   }
@@ -478,11 +502,8 @@ struct drm_rotation_t * parse_rotation_string(
   char * sptr1;
   char * spec;
   char * rotation_str;
-  char * interface_str;
-  char * instance_str;
   char * ep;
   long lval;
-  unsigned long ulval;
   uint32_t rotation;
   uint32_t interface;
   uint32_t instance;
@@ -497,10 +518,6 @@ struct drm_rotation_t * parse_rotation_string(
     if (!spec || !rotation_str)
       goto err;
 
-    interface_str = strtok_r(spec, "-", &instance_str);
-    if (!interface_str || !instance_str)
-      goto err;
-
     errno = 0;
     lval = strtol(rotation_str, &ep, 0);
     if (rotation_str[0] == '\0' || *ep != '\0')
@@ -513,20 +530,8 @@ struct drm_rotation_t * parse_rotation_string(
     }
     rotation = (uint32_t)lval;
 
-    if (0 != drm_connector_name_to_id(interface_str, &interface))
+    if (0 != drm_connector_spec_to_id(spec, &interface, &instance))
       goto err;
-
-    errno = 0;
-    ulval = strtoul(instance_str, &ep, 0);
-    if (instance_str[0] == '\0' || *ep != '\0')
-      goto err;
-    if (errno == ERANGE && ulval == ULONG_MAX)
-      goto err;
-    if (ulval > UINT32_MAX) {
-      errno = ERANGE;
-      goto err;
-    }
-    instance = (uint32_t)ulval;
 
     if (!(root = add_drm_rotation(root, interface, instance, rotation)))
       goto err;
