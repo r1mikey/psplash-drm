@@ -61,7 +61,7 @@ static void psplash_draw_msg_one(PSplashScanout *so, const char *msg)
 
 void psplash_draw_msg(PSplashScanout *so, const char *msg)
 {
-  while (so) {
+  while (msg && so) {
     psplash_draw_msg_one(so, msg);
     so = so->next;
   }
